@@ -1,6 +1,6 @@
-# Actualizamos a la versión de Gradle exacta que pide Spring Boot 4.0.5
 FROM gradle:8.14-jdk21-alpine
 
 WORKDIR /app
 
-CMD ["gradle", "bootRun", "--no-daemon"]
+# El flag --continuous le dice a Gradle que se quede escuchando
+CMD ["gradle", "bootRun", "--continuous", "--no-daemon"]
