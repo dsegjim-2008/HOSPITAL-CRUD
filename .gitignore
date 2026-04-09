@@ -1,0 +1,14 @@
+# IDEs y SO
+.vscode/
+.idea/
+*.DS_Store
+
+# Frontend
+client/node_modules/
+client/dist/
+client/.env
+
+# Backend
+server/.gradle/
+server/build/
+server/bin/

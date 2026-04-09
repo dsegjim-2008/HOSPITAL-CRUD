@@ -1,0 +1,8 @@
+# Usamos la versión LTS de Java 21 con Gradle
+FROM gradle:8.5-jdk21-alpine
+
+WORKDIR /app
+
+# El comando por defecto al levantar el contenedor
+# Ejecuta Spring Boot permitiendo conectarse al debugger y recargar cambios
+CMD ["gradle", "bootRun", "--no-daemon"]
