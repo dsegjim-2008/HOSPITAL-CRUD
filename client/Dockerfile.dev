@@ -1,9 +1,5 @@
 FROM node:20-alpine
-
 WORKDIR /app
-
-# Exponemos el puerto de Vite
 EXPOSE 5173
-
-# Vite requiere este flag en Docker para exponerse fuera del contenedor
-CMD ["npm", "run", "dev", "--", "--host"]
+# Instala dependencias y luego arranca en modo dev
+CMD ["sh", "-c", "npm install && npm run dev -- --host"]
