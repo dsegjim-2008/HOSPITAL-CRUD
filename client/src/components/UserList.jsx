@@ -5,7 +5,7 @@ import { getUsuarios, borrarUsuario, crearUsuario, actualizarUsuario } from '../
 // --- CONFIGURACIÓN DEL TOAST DE SWEETALERT2 ---
 const Toast = Swal.mixin({
   toast: true,
-  position: 'top-end',
+  position: 'bottom-end',
   showConfirmButton: false,
   timer: 3000,
   timerProgressBar: true,
@@ -15,7 +15,7 @@ const Toast = Swal.mixin({
   }
 });
 
-const UserList = () => {
+const UserList = ({ usuarioSesion }) => {
   const [usuarios, setUsuarios] = useState([]);
   const [cargando, setCargando] = useState(true);
   
@@ -116,9 +116,6 @@ const UserList = () => {
     <div className="container mx-auto p-6 relative">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Lista de Usuarios</h2>
-        <button onClick={() => abrirModal()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow">
-          + Nuevo Usuario
-        </button>
       </div>
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
@@ -142,8 +139,22 @@ const UserList = () => {
                   </span>
                 </td>
                 <td className="px-5 py-4 text-center space-x-4">
-                  <button onClick={() => abrirModal(user)} className="text-indigo-600 hover:text-indigo-900 font-semibold">Editar</button>
-                  <button onClick={() => handleBorrar(user.id, user.primerNombre)} className="text-red-600 hover:text-red-900 font-semibold">Borrar</button>
+                  {usuarioSesion.rol === 'ADMIN' ? (
+                    <>
+                      <button onClick={() => abrirModal(user)} className="text-indigo-600 hover:text-indigo-900 font-semibold">Editar</button>
+                      
+                      {/* Si el usuario de esta fila soy YO mismo, no muestro el botón de borrar */}
+                      {user.id !== usuarioSesion.id ? (
+                        <button onClick={() => handleBorrar(user.id, user.primerNombre)} className="text-red-600 hover:text-red-900 font-semibold">
+                          Borrar
+                        </button>
+                      ) : (
+                        <span className="text-gray-400 text-xs italic">Eres tú</span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="text-gray-400 text-xs italic">Sin permisos</span>
+                  )}
                 </td>
               </tr>
             ))}

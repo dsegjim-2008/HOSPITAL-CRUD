@@ -75,4 +75,12 @@ public class UserService {
     public void eliminarUsuario(Long id) {
         userRepository.deleteById(id);
     }
+
+    // Lógica para iniciar sesión verificando la contraseña encriptada
+    public Optional<UserDTO> autenticar(String email, String rawPassword) {
+        return userRepository.findByEmail(email)
+                // Comprobamos que el password coincide con el hash de la BD
+                .filter(user -> passwordEncoder.matches(rawPassword, user.getPassword()))
+                .map(this::convertirADTO);
+    }
 }

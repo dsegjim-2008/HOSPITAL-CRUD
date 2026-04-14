@@ -74,6 +74,22 @@ public class UserController {
         }
     }
 
+    // POST: Iniciar sesión
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credenciales) {
+        String email = credenciales.get("email");
+        String password = credenciales.get("password");
+
+        Optional<UserDTO> usuarioAutenticado = userService.autenticar(email, password);
+        
+        if (usuarioAutenticado.isPresent()) {
+            return ResponseEntity.ok(usuarioAutenticado.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(crearRespuestaError("Email o contraseña incorrectos.", null));
+        }
+    }
+
     @GetMapping
     public ResponseEntity<?> listarTodos() {
         try {
