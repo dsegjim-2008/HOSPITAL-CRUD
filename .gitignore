@@ -1,14 +1,15 @@
-# IDEs y SO
-.vscode/
+# Java / Gradle
+.gradle/
+build/
+out/
 .idea/
-*.DS_Store
+*.class
 
-# Frontend
-client/node_modules/
-client/dist/
-client/.env
+# Docker
+postgres_data/
+pgadmin_data/
 
-# Backend
-server/.gradle/
-server/build/
-server/bin/
+# Node / React
+node_modules/
+dist/
+.env

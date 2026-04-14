@@ -44,7 +44,7 @@ function EditPacienteModal({ paciente, onClose, onUpdate }) {
                         <label className="block text-sm font-medium text-slate-700 mb-1">Asignar Médico</label>
                         <select value={formData.medicoId || ""} onChange={e => setFormData({...formData, medicoId: e.target.value || null})} className="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
                             <option value="">-- Sin Médico (Huérfano) --</option>
-                            {medicos.map(m => <option key={m.id} value={m.id}>{m.nombre} ({m.especialidad})</option>)}
+                            {medicos.map(m => <option key={m.id} value={m.id}>{m.nombreCompleto} ({m.especialidad})</option>)}
                         </select>
                     </div>
                     <button type="submit" className="w-full bg-indigo-600 text-white font-bold p-4 rounded-xl hover:bg-indigo-700 transition flex justify-center gap-2 items-center shadow-lg shadow-indigo-200">

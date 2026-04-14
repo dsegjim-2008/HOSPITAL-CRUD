@@ -115,4 +115,25 @@ public class PacienteService {
 
         return dto;
     }
+
+    // En PacienteService.java
+    @Transactional
+    public void actualizar(Long id, PacienteDTO dto) {
+        Paciente p = pacienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+        
+        p.setNombre(dto.getNombre());
+        p.setApellido(dto.getApellido());
+        p.setNss(dto.getNss());
+
+        // Buscamos el médico si viene un ID, si no lo dejamos en null (huérfano)
+        if (dto.getMedicoId() != null) {
+            Medico m = medicoRepository.findById(dto.getMedicoId()).orElse(null);
+            p.setMedico(m);
+        } else {
+            p.setMedico(null);
+        }
+
+        pacienteRepository.save(p);
+    }
 }

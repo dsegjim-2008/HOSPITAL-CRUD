@@ -48,14 +48,11 @@ public class PacienteController {
         }
     }
 
-    // PUT: Actualizar paciente
+    // En PacienteController.java
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarPaciente(@PathVariable Long id, @RequestBody PacienteDTO dto) {
-        try {
-            return ResponseEntity.ok(pacienteService.actualizarPaciente(id, dto));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+        pacienteService.actualizar(id, dto);
+        return ResponseEntity.ok("Paciente actualizado con éxito");
     }
 
     @GetMapping("/huerfanos")
