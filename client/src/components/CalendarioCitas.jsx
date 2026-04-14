@@ -1,104 +1,127 @@
+// client/src/components/CalendarioCitas.jsx
 import React, { useState, useEffect } from 'react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
 import { hospitalService } from '../services/hospitalService';
-import { Calendar as CalendarIcon, Clock, MapPin, User, Plus, RefreshCw } from 'lucide-react';
-import Swal from 'sweetalert2';
+import { Plus, Calendar as CalIcon } from 'lucide-react';
+import CitaModal from './CitaModal';
+import CitasDiaModal from './CitasDiaModal';
 
 function CalendarioCitas({ medicoId }) {
     const [citas, setCitas] = useState([]);
-    const [cargando, setCargando] = useState(true);
+    const [eventosCalendario, setEventosCalendario] = useState([]);
+    
+    // Estados de control de modales
+    const [modalCrearOpen, setModalCrearOpen] = useState(false);
+    const [modalListaOpen, setModalListaOpen] = useState(false);
+    const [modalEditarOpen, setModalEditarOpen] = useState(false);
+    
+    const [fechaSeleccionada, setFechaSeleccionada] = useState("");
+    const [citasDelDia, setCitasDelDia] = useState([]);
+    const [citaAEditar, setCitaAEditar] = useState(null);
 
-    useEffect(() => {
-        cargarCitas();
-    }, [medicoId]);
+    useEffect(() => { cargarAgenda(); }, [medicoId]);
 
-    const cargarCitas = async () => {
-        try {
-            const resp = await hospitalService.obtenerCitasMedico(medicoId);
-            setCitas(resp.data);
-        } catch (error) {
-            console.error("Error al cargar la agenda", error);
-        } finally {
-            setCargando(false);
+    const cargarAgenda = async () => {
+        const resp = await hospitalService.obtenerCitasMedico(medicoId);
+        setCitas(resp.data);
+        const events = Object.entries(
+            resp.data.reduce((acc, c) => {
+                const f = c.fechaHora.split('T')[0];
+                acc[f] = (acc[f] || 0) + 1;
+                return acc;
+            }, {})
+        ).map(([fecha, count]) => ({
+            title: `${count} Cita${count > 1 ? 's' : ''}`,
+            start: fecha,
+            extendedProps: { fecha }
+        }));
+        setEventosCalendario(events);
+    };
+
+    const handleDateClick = (info) => {
+        const fecha = info.dateStr;
+        const filtradas = citas.filter(c => c.fechaHora.startsWith(fecha));
+        
+        setFechaSeleccionada(fecha);
+        
+        if (filtradas.length > 0) {
+            setCitasDelDia(filtradas);
+            setModalListaOpen(true);
+        } else {
+            setModalCrearOpen(true);
         }
     };
 
-    const formatearHora = (fechaIso) => {
-        return new Date(fechaIso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    };
-
-    const formatearFecha = (fechaIso) => {
-        return new Date(fechaIso).toLocaleDateString('es-ES', { 
-            weekday: 'long', 
-            day: 'numeric', 
-            month: 'long' 
-        });
-    };
-
-    if (cargando) return <div className="text-center py-20 animate-pulse text-indigo-600 font-bold">Sincronizando agenda médica...</div>;
-
     return (
-        <div className="max-w-4xl mx-auto space-y-8">
-            {/* Cabecera de la Agenda */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                <div>
-                    <h2 className="text-3xl font-black text-slate-800 flex items-center gap-3">
-                        <CalendarIcon className="text-indigo-600" size={32} /> Mi Agenda
-                    </h2>
-                    <p className="text-slate-400 font-medium mt-1 uppercase tracking-widest text-xs">
-                        {citas.length > 0 ? formatearFecha(citas[0].fechaHora) : 'Sin citas programadas'}
-                    </p>
-                </div>
-                <button 
-                    onClick={() => Swal.fire('Función en desarrollo', 'Pronto podrás programar citas desde aquí', 'info')}
-                    className="bg-indigo-600 text-white px-6 py-4 rounded-2xl flex items-center gap-3 font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 active:scale-95"
-                >
+        <div className="bg-white rounded-[3rem] p-8 shadow-xl border border-slate-100">
+            <div className="flex justify-between items-center mb-8">
+                <h2 className="text-3xl font-black text-slate-800 flex items-center gap-3">
+                    <CalIcon className="text-indigo-600" /> Agenda Mensual
+                </h2>
+                <button onClick={() => {setFechaSeleccionada(""); setModalCrearOpen(true);}} className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2">
                     <Plus size={20} /> Nueva Cita
                 </button>
             </div>
 
-            {/* Listado de Citas (Agenda) */}
-            <div className="space-y-4">
-                {citas.length > 0 ? (
-                    citas.map((cita) => (
-                        <div key={cita.id} className="group bg-white border border-slate-100 rounded-3xl p-6 flex flex-col md:flex-row items-center gap-6 hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
-                            {/* Bloque Hora */}
-                            <div className="flex flex-col items-center justify-center bg-slate-50 px-6 py-4 rounded-2xl border border-slate-100 min-w-[120px]">
-                                <span className="text-2xl font-black text-slate-800">{formatearHora(cita.fechaHora)}</span>
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hora Cita</span>
-                            </div>
-
-                            {/* Info Paciente */}
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2 text-indigo-600 mb-1">
-                                    <User size={16} />
-                                    <span className="text-xs font-bold uppercase tracking-wider">Paciente</span>
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900">{cita.nombrePaciente}</h3>
-                                <p className="text-slate-500 text-sm mt-1 flex items-center gap-1 italic">
-                                    "{cita.motivo}"
-                                </p>
-                            </div>
-
-                            {/* Detalles Sala */}
-                            <div className="flex items-center gap-8 pr-4">
-                                <div className="flex items-center gap-3 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl border border-indigo-100">
-                                    <MapPin size={18} />
-                                    <span className="font-bold text-sm">{cita.sala}</span>
-                                </div>
-                                <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.5)]"></div>
-                            </div>
-                        </div>
-                    ))
-                ) : (
-                    <div className="text-center py-24 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
-                        <RefreshCw className="mx-auto text-slate-300 mb-4 animate-spin-slow" size={48} />
-                        <p className="text-slate-400 font-medium italic">No tienes citas para hoy. ¡Día tranquilo!</p>
-                    </div>
-                )}
+            <div className="custom-calendar">
+                <FullCalendar
+                    plugins={[dayGridPlugin, interactionPlugin]}
+                    initialView="dayGridMonth"
+                    locale="es"
+                    events={eventosCalendario}
+                    dateClick={handleDateClick}
+                    headerToolbar={{
+                        left: 'prev,next', // QUITADO 'today'
+                        center: 'title',
+                        right: ''
+                    }}
+                    height="auto"
+                />
             </div>
+
+            {/* MODAL 1: LISTA DEL DÍA */}
+            {modalListaOpen && (
+                <CitasDiaModal 
+                    fecha={fechaSeleccionada} 
+                    citas={citasDelDia} 
+                    onClose={() => setModalListaOpen(false)}
+                    onEditCita={(cita) => {
+                        setCitaAEditar(cita);
+                        setModalListaOpen(false);
+                        setModalEditarOpen(true);
+                    }}
+                />
+            )}
+
+            {/* MODAL 2: CREAR NUEVA (Con fecha auto-asignada) */}
+            {modalCrearOpen && (
+                <CitaModal 
+                    medicoId={medicoId} 
+                    fechaPredefinida={fechaSeleccionada}
+                    onClose={() => setModalCrearOpen(false)}
+                    onUpdate={cargarAgenda}
+                />
+            )}
+
+            {/* MODAL 3: EDITAR EXISTENTE */}
+            {modalEditarOpen && (
+                <CitaModal 
+                    cita={citaAEditar}
+                    medicoId={medicoId}
+                    onClose={() => setModalEditarOpen(false)}
+                    onUpdate={cargarAgenda}
+                />
+            )}
+            
+            <style>{`
+                .fc-daygrid-day { cursor: pointer; transition: background 0.2s; }
+                .fc-daygrid-day:hover { background: #f8fafc !important; }
+                .fc-event { background: #6366f1 !important; border: none !important; padding: 2px 8px !important; border-radius: 6px !important; font-weight: bold !important; }
+            `}</style>
         </div>
     );
 }
 
-// ESTA ES LA LÍNEA QUE TE FALTABA Y CAUSABA EL ERROR:
 export default CalendarioCitas;

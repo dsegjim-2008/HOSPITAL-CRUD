@@ -41,6 +41,28 @@ public class CitaController {
         return ResponseEntity.ok("Cita confirmada");
     }
 
+    // En CitaController.java
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizarCita(@PathVariable Long id, @RequestBody CitaDTO dto) {
+        Cita cita = citaRepository.findById(id).orElseThrow();
+        cita.setFechaHora(dto.getFechaHora());
+        cita.setMotivo(dto.getMotivo());
+        cita.setSala(dto.getSala());
+        // Si cambia el paciente:
+        Paciente paciente = pacienteRepository.findById(dto.getPacienteId()).orElseThrow();
+        cita.setPaciente(paciente);
+        
+        citaRepository.save(cita);
+        return ResponseEntity.ok("Cita actualizada");
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> eliminarCita(@PathVariable Long id) {
+        citaRepository.deleteById(id);
+        return ResponseEntity.ok("Cita eliminada");
+    }
+
     private CitaDTO convertirADTO(Cita c) {
         return new CitaDTO(c.getId(), c.getFechaHora(), c.getMotivo(), c.getSala(),
                 c.getMedico().getId(), c.getMedico().getNombreCompleto(),
