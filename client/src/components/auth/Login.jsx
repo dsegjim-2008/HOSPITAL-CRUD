@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HeartPulse, Lock, User } from 'lucide-react';
-import { hospitalService } from '../services/hospitalService';
+import { hospitalService } from '../../services/hospitalService';
 import Swal from 'sweetalert2';
 
 function Login({ onLogin }) {

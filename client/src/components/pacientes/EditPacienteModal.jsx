@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { hospitalService } from '../services/hospitalService';
+import { hospitalService } from '../../services/hospitalService';
 import { X, Save } from 'lucide-react';
 import Swal from 'sweetalert2';
 

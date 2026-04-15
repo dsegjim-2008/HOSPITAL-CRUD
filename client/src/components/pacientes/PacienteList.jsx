@@ -1,40 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { hospitalService } from '../services/hospitalService';
-import { User, AlertTriangle, FileText, Edit, Activity, Search, Plus } from 'lucide-react';
+import { User, FileText, Edit, Activity, Search, Plus } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { usePacientes } from '../../hooks/usePacientes';
 import EditPacienteModal from './EditPacienteModal';
 import HistorialModal from './HistorialModal';
 
 // Recibimos medicoId como prop desde App.jsx
 function PacienteList({ medicoId }) {
-    const [pacientes, setPacientes] = useState([]);
+    const { pacientes, cargando, error, cargarPacientes } = usePacientes(medicoId);
     const [busqueda, setBusqueda] = useState("");
-    const [cargando, setCargando] = useState(true);
     const [pacienteSeleccionado, setPacienteSeleccionado] = useState(null);
     const [tipoModal, setTipoModal] = useState(null);
 
+    // Muestra el error de red si el hook no pudo cargar los datos
     useEffect(() => {
-        cargarPacientes();
-    }, [medicoId]); // Recargar si cambia el médico
-
-    const cargarPacientes = async () => {
-        try {
-            const resp = await hospitalService.obtenerPacientes();
-            let lista = resp.data;
-
-            // --- FILTRO DE PRIVACIDAD ---
-            // Si medicoId existe, solo nos quedamos con sus pacientes
-            if (medicoId) {
-                lista = lista.filter(p => p.medicoId === medicoId);
-            }
-
-            setPacientes(lista);
-        } catch (error) {
-            Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
-        } finally {
-            setCargando(false);
-        }
-    };
+        if (error) Swal.fire('Error', error, 'error');
+    }, [error]);
 
     const pacientesFiltrados = pacientes.filter(p => 
         p.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 

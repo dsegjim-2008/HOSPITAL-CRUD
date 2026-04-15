@@ -1,11 +1,12 @@
 package com.empresa.server.service;
 
 import com.empresa.server.dto.MedicoDTO;
+import com.empresa.server.exception.ResourceNotFoundException;
 import com.empresa.server.model.Medico;
 import com.empresa.server.model.Paciente;
 import com.empresa.server.repository.MedicoRepository;
 import com.empresa.server.repository.PacienteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,20 +32,18 @@ import java.util.stream.Collectors;
  * @see MedicoRepository
  */
 @Service
+@RequiredArgsConstructor
 public class MedicoService {
-
 
     /**
      * Repositorio para acceso a datos de médicos.
      */
-    @Autowired
-    private MedicoRepository medicoRepository;
-    
+    private final MedicoRepository medicoRepository;
+
     /**
      * Repositorio para acceso a datos de pacientes.
      */
-    @Autowired
-    private PacienteRepository pacienteRepository;
+    private final PacienteRepository pacienteRepository;
 
     /**
      * Obtiene la lista de todos los médicos registrados en el sistema.
@@ -102,7 +101,7 @@ public class MedicoService {
     @Transactional
     public void eliminarMedicoSeguro(Long id) {
         Medico medico = medicoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Médico no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Médico con ID " + id + " no encontrado"));
 
         // Desasignar pacientes antes de borrar
         if (medico.getPacientes() != null) {

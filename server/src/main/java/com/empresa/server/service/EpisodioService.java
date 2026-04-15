@@ -1,10 +1,12 @@
 package com.empresa.server.service;
 
 import com.empresa.server.dto.EpisodioDTO;
+import com.empresa.server.exception.ResourceNotFoundException;
 import com.empresa.server.model.Episodio;
+import com.empresa.server.model.Paciente;
 import com.empresa.server.repository.EpisodioRepository;
 import com.empresa.server.repository.PacienteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,19 +28,18 @@ import java.time.LocalDate;
  * @see EpisodioRepository
  */
 @Service
+@RequiredArgsConstructor
 public class EpisodioService {
 
     /**
      * Repositorio para acceso a datos de episodios clínicos.
      */
-    @Autowired
-    private EpisodioRepository episodioRepository;
+    private final EpisodioRepository episodioRepository;
 
     /**
      * Repositorio para acceso a datos de pacientes.
      */
-    @Autowired
-    private PacienteRepository pacienteRepository;
+    private final PacienteRepository pacienteRepository;
 
     /**
      * Añade un nuevo episodio clínico al historial de un paciente.
@@ -53,16 +54,14 @@ public class EpisodioService {
      */
     @Transactional
     public void añadirEpisodio(Long pacienteId, EpisodioDTO dto) {
-        pacienteRepository.findById(pacienteId).ifPresentOrElse(
-                paciente -> {
-                    Episodio episodio = new Episodio();
-                    episodio.setFecha(dto.getFecha() != null ? dto.getFecha() : LocalDate.now());
-                    episodio.setDiagnostico(dto.getDiagnostico());
-                    episodio.setTratamiento(dto.getTratamiento());
-                    episodio.setPaciente(paciente);
-                    episodioRepository.save(episodio);
-                },
-                () -> { throw new RuntimeException("Paciente con ID " + pacienteId + " no encontrado"); }
-        );
+        Paciente paciente = pacienteRepository.findById(pacienteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente con ID " + pacienteId + " no encontrado"));
+
+        Episodio episodio = new Episodio();
+        episodio.setFecha(dto.getFecha() != null ? dto.getFecha() : LocalDate.now());
+        episodio.setDiagnostico(dto.getDiagnostico());
+        episodio.setTratamiento(dto.getTratamiento());
+        episodio.setPaciente(paciente);
+        episodioRepository.save(episodio);
     }
 }

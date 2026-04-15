@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Users, Stethoscope, Calendar, LogOut, HeartPulse, AlertTriangle } from 'lucide-react';
-import Login from './components/Login';
-import PacienteList from './components/PacienteList';
-import MedicoList from './components/MedicoList';
-import HuerfanosList from './components/HuerfanosList';
-import CalendarioCitas from './components/CalendarioCitas';
+import Login from './components/auth/Login';
+import PacienteList from './components/pacientes/PacienteList';
+import MedicoList from './components/medicos/MedicoList';
+import HuerfanosList from './components/pacientes/HuerfanosList';
+import CalendarioCitas from './components/citas/CalendarioCitas';
 
 const SESION_KEY = 'hospitalos_sesion';
 

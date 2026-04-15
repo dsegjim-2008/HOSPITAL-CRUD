@@ -1,17 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { hospitalService } from '../services/hospitalService';
-import { Stethoscope, Trash2, UserCheck, IdCard } from 'lucide-react';
+import React from 'react';
+import { Stethoscope, Trash2, IdCard } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useMedicos } from '../../hooks/useMedicos';
+import { hospitalService } from '../../services/hospitalService';
 
 function MedicoList() {
-    const [medicos, setMedicos] = useState([]);
-
-    useEffect(() => { cargarMedicos(); }, []);
-
-    const cargarMedicos = async () => {
-        const resp = await hospitalService.obtenerMedicos();
-        setMedicos(resp.data);
-    };
+    const { medicos, cargarMedicos } = useMedicos();
 
     const eliminarMedico = async (id) => {
         const result = await Swal.fire({

@@ -15,7 +15,7 @@ function HistorialModal({ paciente, onClose }) {
 
                 <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50">
                     {paciente.episodios?.length > 0 ? (
-                        paciente.episodios.map((ep, index) => (
+                        paciente.episodios.map((ep) => (
                             <div key={ep.id} className="relative pl-8 border-l-2 border-indigo-200 pb-2">
                                 <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-indigo-500 border-4 border-white shadow-sm"></div>
                                 <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">

@@ -1,4 +1,3 @@
-// client/src/components/CitasDiaModal.jsx
 import React from 'react';
 import { X, Edit3, Clock, MapPin, User } from 'lucide-react';
 

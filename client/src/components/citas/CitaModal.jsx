@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { hospitalService } from '../services/hospitalService';
-import { X, Save, Trash2 } from 'lucide-react';
+import { hospitalService } from '../../services/hospitalService';
+import { X, Save } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 function CitaModal({ cita, medicoId, fechaPredefinida, onClose, onUpdate }) {

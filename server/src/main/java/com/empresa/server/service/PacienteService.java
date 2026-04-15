@@ -2,11 +2,12 @@ package com.empresa.server.service;
 
 import com.empresa.server.dto.EpisodioDTO;
 import com.empresa.server.dto.PacienteDTO;
+import com.empresa.server.exception.ResourceNotFoundException;
 import com.empresa.server.model.Medico;
 import com.empresa.server.model.Paciente;
 import com.empresa.server.repository.MedicoRepository;
 import com.empresa.server.repository.PacienteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,20 +34,18 @@ import java.util.stream.Collectors;
  * @see PacienteRepository
  */
 @Service
+@RequiredArgsConstructor
 public class PacienteService {
-
 
     /**
      * Repositorio para acceso a datos de pacientes.
      */
-    @Autowired
-    private PacienteRepository pacienteRepository;
+    private final PacienteRepository pacienteRepository;
 
     /**
      * Repositorio para acceso a datos de médicos.
      */
-    @Autowired
-    private MedicoRepository medicoRepository;
+    private final MedicoRepository medicoRepository;
 
     /**
      * Obtiene la lista de todos los pacientes registrados en el sistema.
@@ -76,7 +75,7 @@ public class PacienteService {
     @Transactional(readOnly = true)
     public PacienteDTO obtenerPorId(Long id) {
         Paciente paciente = pacienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente con ID " + id + " no encontrado"));
         return convertirADTO(paciente);
     }
 
@@ -101,7 +100,7 @@ public class PacienteService {
 
         if (dto.getMedicoId() != null) {
             Medico medico = medicoRepository.findById(dto.getMedicoId())
-                    .orElseThrow(() -> new RuntimeException("El médico con ID " + dto.getMedicoId() + " no existe."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Médico con ID " + dto.getMedicoId() + " no encontrado"));
             paciente.setMedico(medico);
         }
 
@@ -175,13 +174,12 @@ public class PacienteService {
      * 
      * @param id Identificador del paciente a actualizar
      * @param dto DTO con los datos actualizados
-     * @throws RuntimeException si el paciente no existe
-     * @see #actualizarPaciente(Long, PacienteDTO)
+     * @throws ResourceNotFoundException si el paciente no existe
      */
     @Transactional
     public void actualizar(Long id, PacienteDTO dto) {
         Paciente p = pacienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente con ID " + id + " no encontrado"));
         
         p.setNombre(dto.getNombre());
         p.setApellido(dto.getApellido());

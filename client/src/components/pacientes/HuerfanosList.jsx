@@ -1,28 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { hospitalService } from '../services/hospitalService';
+import React, { useState } from 'react';
 import { AlertTriangle, UserPlus, RefreshCcw } from 'lucide-react';
-import EditPacienteModal from './EditPacienteModal'; // Reutilizamos el modal
 import Swal from 'sweetalert2';
+import { useHuerfanos } from '../../hooks/useHuerfanos';
+import EditPacienteModal from './EditPacienteModal';
 
 function HuerfanosList() {
-    const [huerfanos, setHuerfanos] = useState([]);
-    const [cargando, setCargando] = useState(true);
+    const { huerfanos, cargando, cargarHuerfanos } = useHuerfanos();
     const [pacienteAEditar, setPacienteAEditar] = useState(null);
-
-    useEffect(() => {
-        cargarHuerfanos();
-    }, []);
-
-    const cargarHuerfanos = async () => {
-        try {
-            const resp = await hospitalService.obtenerHuerfanos();
-            setHuerfanos(resp.data);
-        } catch (error) {
-            console.error("Error al cargar huérfanos", error);
-        } finally {
-            setCargando(false);
-        }
-    };
 
     if (cargando) return <div className="text-center py-20 text-indigo-600 animate-pulse font-bold">Buscando pacientes sin asignar...</div>;
 
@@ -38,7 +22,7 @@ function HuerfanosList() {
 
     return (
         <div className="space-y-6">
-            {/* Banner de aviso */}
+            {/* BANNER DE AVISO */}
             <div className="bg-gradient-to-r from-amber-500 to-orange-600 p-6 rounded-3xl text-white shadow-lg shadow-amber-100 flex items-center gap-6">
                 <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md">
                     <AlertTriangle size={32} />

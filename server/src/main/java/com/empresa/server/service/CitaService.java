@@ -1,13 +1,14 @@
 package com.empresa.server.service;
 
 import com.empresa.server.dto.CitaDTO;
+import com.empresa.server.exception.ResourceNotFoundException;
 import com.empresa.server.model.Cita;
 import com.empresa.server.model.Medico;
 import com.empresa.server.model.Paciente;
 import com.empresa.server.repository.CitaRepository;
 import com.empresa.server.repository.MedicoRepository;
 import com.empresa.server.repository.PacienteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,25 +35,23 @@ import java.util.stream.Collectors;
  * @see CitaRepository
  */
 @Service
+@RequiredArgsConstructor
 public class CitaService {
 
     /**
      * Repositorio para acceso a datos de citas.
      */
-    @Autowired
-    private CitaRepository citaRepository;
+    private final CitaRepository citaRepository;
 
     /**
      * Repositorio para acceso a datos de médicos.
      */
-    @Autowired
-    private MedicoRepository medicoRepository;
+    private final MedicoRepository medicoRepository;
 
     /**
      * Repositorio para acceso a datos de pacientes.
      */
-    @Autowired
-    private PacienteRepository pacienteRepository;
+    private final PacienteRepository pacienteRepository;
 
     /**
      * Obtiene todas las citas de un médico ordenadas cronológicamente.
@@ -81,9 +80,9 @@ public class CitaService {
     @Transactional
     public void crearCita(CitaDTO dto) {
         Medico medico = medicoRepository.findById(dto.getMedicoId())
-                .orElseThrow(() -> new RuntimeException("Médico con ID " + dto.getMedicoId() + " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Médico con ID " + dto.getMedicoId() + " no encontrado"));
         Paciente paciente = pacienteRepository.findById(dto.getPacienteId())
-                .orElseThrow(() -> new RuntimeException("Paciente con ID " + dto.getPacienteId() + " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente con ID " + dto.getPacienteId() + " no encontrado"));
 
         Cita cita = new Cita();
         cita.setFechaHora(dto.getFechaHora());
@@ -108,14 +107,14 @@ public class CitaService {
     @Transactional
     public void actualizarCita(Long id, CitaDTO dto) {
         Cita cita = citaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cita con ID " + id + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cita con ID " + id + " no encontrada"));
 
         cita.setFechaHora(dto.getFechaHora());
         cita.setMotivo(dto.getMotivo());
         cita.setSala(dto.getSala());
 
         Paciente paciente = pacienteRepository.findById(dto.getPacienteId())
-                .orElseThrow(() -> new RuntimeException("Paciente con ID " + dto.getPacienteId() + " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente con ID " + dto.getPacienteId() + " no encontrado"));
         cita.setPaciente(paciente);
 
         citaRepository.save(cita);
@@ -132,7 +131,7 @@ public class CitaService {
     @Transactional
     public void eliminarCita(Long id) {
         if (!citaRepository.existsById(id)) {
-            throw new RuntimeException("Cita con ID " + id + " no encontrada");
+            throw new ResourceNotFoundException("Cita con ID " + id + " no encontrada");
         }
         citaRepository.deleteById(id);
     }
