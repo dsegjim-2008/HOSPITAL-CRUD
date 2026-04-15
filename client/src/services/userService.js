@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8081/api/usuarios';
+const API_URL = `${import.meta.env.VITE_API_URL}/usuarios`;
 
 // Exportamos pequeñas funciones limpias
 export const getUsuarios = () => axios.get(API_URL);
