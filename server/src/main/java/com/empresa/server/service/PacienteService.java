@@ -13,15 +13,48 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Servicio que contiene la lógica de negocio para la gestión de pacientes.
+ * 
+ * Proporciona métodos para:
+ * - Obtener listados de pacientes (todos, específicos, huérfanos)
+ * - Registrar nuevos pacientes con asignación opcional de médico
+ * - Actualizar datos de pacientes y cambiar asignación de médico
+ * - Convertir entidades a DTOs incluyendo historial de episodios
+ * 
+ * Los métodos marcados con @Transactional garantizan que las operaciones
+ * se ejecuten dentro de una transacción de base de datos. Los marcados con
+ * @Transactional(readOnly=true) son solo de lectura y optimizados para consultas.
+ * 
+ * @author Sistema CRUD Hospitalario
+ * @version 1.0
+ * @since 1.0
+ * @see PacienteDTO
+ * @see PacienteRepository
+ */
 @Service
 public class PacienteService {
 
+
+    /**
+     * Repositorio para acceso a datos de pacientes.
+     */
     @Autowired
     private PacienteRepository pacienteRepository;
 
+    /**
+     * Repositorio para acceso a datos de médicos.
+     */
     @Autowired
     private MedicoRepository medicoRepository;
 
+    /**
+     * Obtiene la lista de todos los pacientes registrados en el sistema.
+     * 
+     * Operación de solo lectura optimizada.
+     * 
+     * @return Lista de DTOs de todos los pacientes
+     */
     @Transactional(readOnly = true)
     public List<PacienteDTO> obtenerTodos() {
         return pacienteRepository.findAll().stream()
@@ -29,7 +62,17 @@ public class PacienteService {
                 .collect(Collectors.toList());
     }
 
-    // NUEVO: Obtener un paciente específico con todo su historial
+    /**
+     * Obtiene un paciente específíco con todos sus datos incluyendo historial.
+     * 
+     * El historial incluye todos los episodios clínicos registrados del paciente.
+     * 
+     * Operación de solo lectura optimizada.
+     * 
+     * @param id Identificador del paciente
+     * @return PacienteDTO con datos completos del paciente
+     * @throws RuntimeException si el paciente no existe
+     */
     @Transactional(readOnly = true)
     public PacienteDTO obtenerPorId(Long id) {
         Paciente paciente = pacienteRepository.findById(id)
@@ -37,6 +80,18 @@ public class PacienteService {
         return convertirADTO(paciente);
     }
 
+    /**
+     * Registra un nuevo paciente en el sistema.
+     * 
+     * Si se especifica un medicoId, el paciente se asigna automáticamente
+     * a ese médico. Si el médico no existe, se lanza una excepción.
+     * 
+     * La operación se ejecuta dentro de una transacción.
+     * 
+     * @param dto DTO con los datos del paciente (nombre, apellido, NSS, medicoId)
+     * @return PacienteDTO del paciente creado
+     * @throws RuntimeException si el médico especificado no existe
+     */
     @Transactional
     public PacienteDTO registrarPaciente(PacienteDTO dto) {
         Paciente paciente = new Paciente();
@@ -54,6 +109,20 @@ public class PacienteService {
         return convertirADTO(guardado);
     }
 
+    /**
+     * Actualiza los datos de un paciente existente (primera versión).
+     * 
+     * Permite cambiar nombre, apellido, NSS y reasignar médico.
+     * Si medicoId es null, el paciente queda sin médico (huérfano).
+     * 
+     * La operación se ejecuta dentro de una transacción.
+     * 
+     * @param id Identificador del paciente a actualizar
+     * @param dto DTO con los datos actualizados
+     * @return PacienteDTO del paciente actualizado
+     * @throws RuntimeException si el paciente o médico no existen
+     * @deprecated Usar {@link #actualizar(Long, PacienteDTO)} en su lugar
+     */
     @Transactional
     public PacienteDTO actualizarPaciente(Long id, PacienteDTO dto) {
         Paciente paciente = pacienteRepository.findById(id)
@@ -78,6 +147,16 @@ public class PacienteService {
         return convertirADTO(actualizado);
     }
 
+    /**
+     * Obtiene la lista de pacientes huérfanos (sin médico asignado).
+     * 
+     * Estos son pacientes registrados en el sistema que están disponibles
+     * para ser asignados a un médico.
+     * 
+     * Operación de solo lectura optimizada.
+     * 
+     * @return Lista de DTOs de pacientes sin médico asignado
+     */
     @Transactional(readOnly = true)
     public List<PacienteDTO> obtenerHuerfanos() {
         return pacienteRepository.findByMedicoIsNull().stream()
@@ -85,7 +164,15 @@ public class PacienteService {
                 .collect(Collectors.toList());
     }
 
-    // ACTUALIZADO: Ahora también mapea los episodios
+    /**
+     * Convierte una entidad Paciente a su DTO correspondiente.
+     * 
+     * Mapea todos los campos incluyendo datos del médico asignado y el historial
+     * de episodios clínicos del paciente.
+     * 
+     * @param paciente Entidad Paciente a convertir
+     * @return PacienteDTO con los datos y historial mapeados
+     */
     private PacienteDTO convertirADTO(Paciente paciente) {
         PacienteDTO dto = new PacienteDTO();
         dto.setId(paciente.getId());
@@ -116,7 +203,19 @@ public class PacienteService {
         return dto;
     }
 
-    // En PacienteService.java
+    /**
+     * Actualiza los datos de un paciente existente (segunda versión).
+     * 
+     * Permite cambiar nombre, apellido, NSS y reasignar médico.
+     * Si medicoId es null, el paciente queda sin médico (huérfano).
+     * 
+     * La operación se ejecuta dentro de una transacción.
+     * 
+     * @param id Identificador del paciente a actualizar
+     * @param dto DTO con los datos actualizados
+     * @throws RuntimeException si el paciente no existe
+     * @see #actualizarPaciente(Long, PacienteDTO)
+     */
     @Transactional
     public void actualizar(Long id, PacienteDTO dto) {
         Paciente p = pacienteRepository.findById(id)
