@@ -1,0 +1,44 @@
+# <tipo>(<alcance>): <descripción corta> — máx 72 caracteres
+# │        │           └─ Imperativo, minúsculas, sin punto final
+# │        └─ Opcional: medico | paciente | cita | episodio | auth | docker | db | ui
+# └─ Tipo obligatorio (ver lista abajo)
+#
+# ──────────────────────────────────────────────────────────────────────
+# TIPOS PERMITIDOS
+# ──────────────────────────────────────────────────────────────────────
+#  feat      → Nueva funcionalidad visible para el usuario
+#  fix       → Corrección de un bug
+#  refactor  → Cambio de código que no añade funcionalidad ni corrige bug
+#  style     → Formato, espacios, comas (sin cambio de lógica)
+#  docs      → Cambios en documentación o README
+#  test      → Añadir o corregir tests
+#  chore     → Tareas de mantenimiento (deps, config, build, docker)
+#  perf      → Mejoras de rendimiento
+#  ci        → Cambios en pipelines CI/CD
+#  revert    → Revertir un commit anterior
+#
+# ──────────────────────────────────────────────────────────────────────
+# CUERPO OPCIONAL — separar del título con una línea en blanco
+# ──────────────────────────────────────────────────────────────────────
+#  Explica el QUÉ y el POR QUÉ, no el cómo.
+#  Máx 72 caracteres por línea.
+#
+# ──────────────────────────────────────────────────────────────────────
+# PIE OPCIONAL
+# ──────────────────────────────────────────────────────────────────────
+#  BREAKING CHANGE: descripción del cambio que rompe compatibilidad
+#  Closes #123 / Refs #456
+#
+# ──────────────────────────────────────────────────────────────────────
+# EJEMPLOS VÁLIDOS
+# ──────────────────────────────────────────────────────────────────────
+#  feat(cita): añadir endpoint PUT /api/citas/{id}
+#  fix(paciente): corregir NPE al actualizar médico asignado
+#  refactor(auth): extraer lógica de login al backend
+#  chore(docker): agregar healthcheck al servicio db
+#  docs: actualizar tabla de endpoints en README
+#  feat(auth)!: implementar Spring Security con JWT
+#
+#  BREAKING CHANGE: el endpoint /api/login reemplaza la
+#  autenticación client-side anterior
+# ──────────────────────────────────────────────────────────────────────
