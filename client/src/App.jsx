@@ -6,11 +6,31 @@ import MedicoList from './components/MedicoList';
 import HuerfanosList from './components/HuerfanosList';
 import CalendarioCitas from './components/CalendarioCitas';
 
+const SESION_KEY = 'hospitalos_sesion';
+
 function App() {
-  const [sesion, setSesion] = useState(null); 
+  const [sesion, setSesion] = useState(() => {
+    try {
+      const guardada = sessionStorage.getItem(SESION_KEY);
+      return guardada ? JSON.parse(guardada) : null;
+    } catch {
+      return null;
+    }
+  });
   const [vista, setVista] = useState('dashboard');
 
-  if (!sesion) return <Login onLogin={setSesion} />;
+  const handleLogin = (nuevaSesion) => {
+    sessionStorage.setItem(SESION_KEY, JSON.stringify(nuevaSesion));
+    setSesion(nuevaSesion);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem(SESION_KEY);
+    setSesion(null);
+    setVista('dashboard');
+  };
+
+  if (!sesion) return <Login onLogin={handleLogin} />;
 
   const esAdmin = sesion.rol === 'admin';
 
@@ -57,10 +77,7 @@ function App() {
                 <div className="flex-1 overflow-hidden">
                     <p className="text-sm font-bold truncate text-slate-100">{nombreUsuario}</p>
                     <button 
-                        onClick={() => {
-                            setSesion(null);
-                            setVista('dashboard');
-                        }} 
+                        onClick={handleLogout} 
                         className="text-[11px] text-red-400 flex items-center gap-1.5 hover:text-red-300 font-bold transition-colors uppercase tracking-wider"
                     >
                         <LogOut size={12}/> Cerrar Sesión

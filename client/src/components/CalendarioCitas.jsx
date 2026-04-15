@@ -115,11 +115,6 @@ function CalendarioCitas({ medicoId }) {
                 />
             )}
             
-            <style>{`
-                .fc-daygrid-day { cursor: pointer; transition: background 0.2s; }
-                .fc-daygrid-day:hover { background: #f8fafc !important; }
-                .fc-event { background: #6366f1 !important; border: none !important; padding: 2px 8px !important; border-radius: 6px !important; font-weight: bold !important; }
-            `}</style>
         </div>
     );
 }

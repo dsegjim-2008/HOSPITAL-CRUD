@@ -110,44 +110,6 @@ public class PacienteService {
     }
 
     /**
-     * Actualiza los datos de un paciente existente (primera versión).
-     * 
-     * Permite cambiar nombre, apellido, NSS y reasignar médico.
-     * Si medicoId es null, el paciente queda sin médico (huérfano).
-     * 
-     * La operación se ejecuta dentro de una transacción.
-     * 
-     * @param id Identificador del paciente a actualizar
-     * @param dto DTO con los datos actualizados
-     * @return PacienteDTO del paciente actualizado
-     * @throws RuntimeException si el paciente o médico no existen
-     * @deprecated Usar {@link #actualizar(Long, PacienteDTO)} en su lugar
-     */
-    @Transactional
-    public PacienteDTO actualizarPaciente(Long id, PacienteDTO dto) {
-        Paciente paciente = pacienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
-
-        // Actualizamos datos básicos
-        paciente.setNombre(dto.getNombre());
-        paciente.setApellido(dto.getApellido());
-        paciente.setNss(dto.getNss());
-
-        // Lógica para reasignar médico si viene en el JSON
-        if (dto.getMedicoId() != null) {
-            Medico nuevoMedico = medicoRepository.findById(dto.getMedicoId())
-                    .orElseThrow(() -> new RuntimeException("El nuevo médico no existe."));
-            paciente.setMedico(nuevoMedico);
-        } else {
-            // Si mandan null, significa que lo dejan sin médico asignado
-            paciente.setMedico(null); 
-        }
-
-        Paciente actualizado = pacienteRepository.save(paciente);
-        return convertirADTO(actualizado);
-    }
-
-    /**
      * Obtiene la lista de pacientes huérfanos (sin médico asignado).
      * 
      * Estos son pacientes registrados en el sistema que están disponibles
